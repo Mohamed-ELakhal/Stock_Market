@@ -1,48 +1,109 @@
+Stock Market Data Pipeline
 Overview
-========
+This project is an end-to-end data pipeline that extracts stock market prices from the Yahoo Finance API, processes the data using Apache Spark, stores it on MinIO, and loads it into a PostgreSQL data warehouse.
+The workflow is orchestrated with Apache Airflow and monitored through Slack notifications, with data visualization handled by Metabase.
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+Architecture
 
-Project Contents
-================
+Yahoo Finance API: Provides real-time stock prices.
 
-Your Astro project contains the following files and folders:
+Apache Airflow: Manages and schedules the workflow (ETL process).
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+MinIO: Used as an object storage service (similar to AWS S3) to store raw and processed data.
 
-Deploy Your Project Locally
-===========================
+Apache Spark: Cleans and formats stock price data.
 
-1. Start Airflow on your local machine by running 'astro dev start'.
+PostgreSQL: Serves as the data warehouse for structured storage.
 
-This command will spin up 4 Docker containers on your machine, each for a different Airflow component:
+Slack: Notifies users about pipeline execution results.
 
-- Postgres: Airflow's Metadata Database
-- Webserver: The Airflow component responsible for rendering the Airflow UI
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+Metabase: Visualizes data from PostgreSQL for analysis.
 
-2. Verify that all 4 Docker containers were created by running 'docker ps'.
+Pipeline Steps
+Check API Availability
 
-Note: Running 'astro dev start' will start your project with the Airflow Webserver exposed at port 8080 and Postgres exposed at port 5432. If you already have either of those ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+Task: is_api_available
 
-3. Access the Airflow UI for your local Airflow project. To do so, go to http://localhost:8080/ and log in with 'admin' for both your Username and Password.
+Verifies that the Yahoo Finance API is reachable.
 
-You should also be able to access your Postgres Database at 'localhost:5432/postgres'.
+Fetch Stock Prices
 
-Deploy Your Project to Astronomer
-=================================
+Task: fetch_stock_prices
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+Pulls stock price data from the API.
 
-Contact
-=======
+Store Prices
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+Task: store_prices
+
+Saves the raw stock data into MinIO.
+
+Format Prices
+
+Task: format_prices
+
+Processes and cleans data using Apache Spark.
+
+Get Formatted CSV
+
+Task: get_formatted_csv
+
+Outputs cleaned data back into MinIO in CSV format.
+
+Load to Data Warehouse
+
+Task: load_to_dw
+
+Loads the cleaned stock prices into PostgreSQL.
+
+Notify via Slack
+
+Task: notifies
+
+Sends a notification to a Slack channel with the pipeline status.
+
+Visualization
+
+Metabase connects to PostgreSQL to provide dashboards and reports.
+
+Tech Stack
+
+Technology	Purpose
+Apache Airflow	Workflow orchestration
+Yahoo Finance API	Data source for stock prices
+MinIO	Object storage for raw and processed data
+Apache Spark	Data processing and transformation
+PostgreSQL	Data warehousing
+Slack	Alerts and notifications
+Metabase	Data visualization and reporting
+Setup Instructions
+Clone the repository:
+
+bash
+Copy
+Edit
+git clone https://github.com/Mohamed-ELakhal/Stock_Market.git
+cd Stock_Market
+Configure environment variables (API keys, MinIO, PostgreSQL credentials).
+
+Start Airflow services:
+
+bash
+Copy
+Edit
+docker-compose up airflow-init
+docker-compose up
+Trigger the DAG manually or schedule it.
+
+Future Improvements
+Add retries and error handling for API failures.
+
+Implement unit tests for each task.
+
+Add monitoring with Airflow metrics to Prometheus/Grafana.
+
+Secure credentials using Airflow Connections and Vault integration.
+
+Author
+Mohamed ELakhal
+GitHub Profile
