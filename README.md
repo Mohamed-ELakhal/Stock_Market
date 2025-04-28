@@ -1,109 +1,109 @@
-Stock Market Data Pipeline
-Overview
-This project is an end-to-end data pipeline that extracts stock market prices from the Yahoo Finance API, processes the data using Apache Spark, stores it on MinIO, and loads it into a PostgreSQL data warehouse.
-The workflow is orchestrated with Apache Airflow and monitored through Slack notifications, with data visualization handled by Metabase.
+# Stock Market Data Pipeline
 
-Architecture
+<p align="center">
+  <img src="diagram.jpg" alt="Pipeline Diagram" width="700"/>
+</p>
 
-Yahoo Finance API: Provides real-time stock prices.
+## Overview
 
-Apache Airflow: Manages and schedules the workflow (ETL process).
+This project is an **end-to-end data pipeline** that extracts stock market prices from the **Yahoo Finance API**, processes the data using **Apache Spark**, stores it on **MinIO**, and loads it into a **PostgreSQL** data warehouse.  
+The workflow is orchestrated with **Apache Airflow** and monitored through **Slack** notifications, with data visualization handled by **Metabase**.
 
-MinIO: Used as an object storage service (similar to AWS S3) to store raw and processed data.
+---
 
-Apache Spark: Cleans and formats stock price data.
+## Architecture
 
-PostgreSQL: Serves as the data warehouse for structured storage.
+- **Yahoo Finance API**: Provides real-time stock prices.
+- **Apache Airflow**: Manages and schedules the workflow (ETL process).
+- **MinIO**: Object storage service (similar to AWS S3) to store raw and processed data.
+- **Apache Spark**: Cleans and formats stock price data.
+- **PostgreSQL**: Serves as the data warehouse for structured storage.
+- **Slack**: Notifies users about pipeline execution results.
+- **Metabase**: Visualizes data from PostgreSQL for analysis.
 
-Slack: Notifies users about pipeline execution results.
+---
 
-Metabase: Visualizes data from PostgreSQL for analysis.
+## Pipeline Steps
 
-Pipeline Steps
-Check API Availability
+1. **Check API Availability**
+   - Task: `is_api_available`
+   - Verifies that the Yahoo Finance API is reachable.
 
-Task: is_api_available
+2. **Fetch Stock Prices**
+   - Task: `fetch_stock_prices`
+   - Pulls stock price data from the API.
 
-Verifies that the Yahoo Finance API is reachable.
+3. **Store Prices**
+   - Task: `store_prices`
+   - Saves the raw stock data into **MinIO**.
 
-Fetch Stock Prices
+4. **Format Prices**
+   - Task: `format_prices`
+   - Processes and cleans data using **Apache Spark**.
 
-Task: fetch_stock_prices
+5. **Get Formatted CSV**
+   - Task: `get_formatted_csv`
+   - Outputs cleaned data back into **MinIO** in CSV format.
 
-Pulls stock price data from the API.
+6. **Load to Data Warehouse**
+   - Task: `load_to_dw`
+   - Loads the cleaned stock prices into **PostgreSQL**.
 
-Store Prices
+7. **Notify via Slack**
+   - Task: `notifies`
+   - Sends a notification to a Slack channel with the pipeline status.
 
-Task: store_prices
+8. **Visualization**
+   - **Metabase** connects to PostgreSQL to provide dashboards and reports.
 
-Saves the raw stock data into MinIO.
+---
 
-Format Prices
+## Tech Stack
 
-Task: format_prices
+| Technology     | Purpose                                  |
+|----------------|------------------------------------------|
+| Apache Airflow | Workflow orchestration                  |
+| Yahoo Finance API | Data source for stock prices         |
+| MinIO          | Object storage for raw and processed data |
+| Apache Spark   | Data processing and transformation      |
+| PostgreSQL     | Data warehousing                        |
+| Slack          | Alerts and notifications                |
+| Metabase       | Data visualization and reporting        |
 
-Processes and cleans data using Apache Spark.
+---
 
-Get Formatted CSV
+## Setup Instructions
 
-Task: get_formatted_csv
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Mohamed-ELakhal/Stock_Market.git
+   cd Stock_Market
+   ```
 
-Outputs cleaned data back into MinIO in CSV format.
+2. **Configure environment variables** (API keys, MinIO, PostgreSQL credentials).
 
-Load to Data Warehouse
+3. **Start Airflow services**:
+   ```bash
+   docker-compose up airflow-init
+   docker-compose up
+   ```
 
-Task: load_to_dw
+4. **Trigger the DAG** manually or set it on a schedule.
 
-Loads the cleaned stock prices into PostgreSQL.
+---
 
-Notify via Slack
+## Future Improvements
 
-Task: notifies
+- Add retries and error handling for API failures.
+- Implement unit tests for each task.
+- Add monitoring with Airflow metrics to Prometheus/Grafana.
+- Secure credentials using Airflow Connections and Vault integration.
 
-Sends a notification to a Slack channel with the pipeline status.
+---
 
-Visualization
+## Author
 
-Metabase connects to PostgreSQL to provide dashboards and reports.
+**Mohamed ELakhal**  
+[GitHub Profile](https://github.com/Mohamed-ELakhal)
 
-Tech Stack
-
-Technology	Purpose
-Apache Airflow	Workflow orchestration
-Yahoo Finance API	Data source for stock prices
-MinIO	Object storage for raw and processed data
-Apache Spark	Data processing and transformation
-PostgreSQL	Data warehousing
-Slack	Alerts and notifications
-Metabase	Data visualization and reporting
-Setup Instructions
-Clone the repository:
-
-bash
-Copy
-Edit
-git clone https://github.com/Mohamed-ELakhal/Stock_Market.git
-cd Stock_Market
-Configure environment variables (API keys, MinIO, PostgreSQL credentials).
-
-Start Airflow services:
-
-bash
-Copy
-Edit
-docker-compose up airflow-init
-docker-compose up
-Trigger the DAG manually or schedule it.
-
-Future Improvements
-Add retries and error handling for API failures.
-
-Implement unit tests for each task.
-
-Add monitoring with Airflow metrics to Prometheus/Grafana.
-
-Secure credentials using Airflow Connections and Vault integration.
-
-Author
-Mohamed ELakhal
-GitHub Profile
+---
