@@ -1,7 +1,7 @@
 # Stock Market Data Pipeline
 
 <p align="center">
-  <img src="diagram.jpg" alt="Pipeline Diagram" width="700"/>
+  <img src="Pipeline Diagram.jpg" alt="Pipeline Diagram" width="700"/>
 </p>
 
 ## Overview
